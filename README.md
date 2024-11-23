@@ -1,9 +1,9 @@
 # Optimizing EV Charging Station Placement with Deep Learning
 
 ## Members
-- **Name 1**: [이름], 소속, 이메일  
-- **Name 2**: [이름], 소속, 이메일  
-- **Name 3**: [이름], 소속, 이메일  
+- 곽연건, 한양대학교 서울캠퍼스 기계공학부, kwak6072@hanyang.ac.kr
+- 정우진, 한양대학교 서울캠퍼스 기계공학부
+
 
 ---
 
