@@ -6,7 +6,7 @@
 1. [Members](#members)  
 2. [I. Proposal](#i-proposal)  
     - [Motivation](#motivation)  
-    - [What do you want to see at the end?](#what-do-you-want-to-see-at-the-end)  
+    - [Objective](#Objective)  
 3. [II. Datasets](#ii-datasets)  
     - [Dataset Description](#dataset-description)  
 4. [III. Methodology](#iii-methodology)  
@@ -34,7 +34,7 @@
   - 지역별 충전소 수요를 데이터 기반으로 예측하여 효과적 배치 방안을 도출하기 위해.  
   - 지속 가능한 교통 인프라를 지원하고, 전기차 사용을 더욱 촉진하기 위해.  
 
-### **What do you want to see at the end?**
+### **Objective**
 - 데이터 기반으로 분석한 충전소 위치의 최적 배치 제안.  
 - 지역별 전기차 보급률 및 기존 충전소 밀도를 고려한 배치 권장 사항 제공.  
 
