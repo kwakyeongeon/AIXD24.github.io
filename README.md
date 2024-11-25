@@ -28,6 +28,7 @@
 
 ## **I. Proposal**
 ![1](https://github.com/user-attachments/assets/4f517007-24a3-4ad2-b00e-3efca4e26ff2)
+
 <사진출처-현대자동차>
 ### **Motivation**
 전기차는 전 세계적으로 빠르게 보급되고 있으나, 충전소 배치의 효율성은 여전히 전기차 사용자들의 요구를 충분히 충족시키지 못하고 있습니다.
