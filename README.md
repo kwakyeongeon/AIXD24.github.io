@@ -71,6 +71,107 @@
 
     ev_distribution_data.csv (2KB)
 
+   ### **Data Preprocessing**
+데이터는 다양한 전처리 과정을 거쳐 분석 가능한 형태로 가공되었습니다.
+
+---
+
+#### **Code 1: 시도 이름 표준화**
+```python
+# 데이터 전처리 함수: 시도 이름 표준화
+def standardize_region_names(df, region_col):
+    region_mapping = {
+        "강원": "강원특별자치도",
+        "경기": "경기도",
+        "경남": "경상남도",
+        "경북": "경상북도",
+        "광주": "광주광역시",
+        "대구": "대구광역시",
+        "대전": "대전광역시",
+        "부산": "부산광역시",
+        "서울": "서울특별시",
+        "세종": "세종특별자치시",
+        "울산": "울산광역시",
+        "인천": "인천광역시",
+        "전남": "전라남도",
+        "전북": "전북특별자치도",
+        "제주": "제주특별자치도",
+        "충남": "충청남도",
+        "충북": "충청북도"
+    }
+    df[region_col] = df[region_col].replace(region_mapping)
+    return df
+```
+
+#### **코드 설명**
+
+region_mapping을 사용해 충전소 데이터와 전기차 등록 대수 데이터에서 지역 이름을 일관성 있게 맞춥니다. 이 과정은 데이터 병합 시 필수적인 단계입니다.
+
+#### **Code 2: 데이터 병합**
+```python
+
+# 충전소 데이터 병합: 충전소 수 계산
+charging_counts = charging_data.groupby("시도").size().reset_index(name="충전소 수")
+
+# 전기차 등록 대수 데이터 변환 및 병합
+ev_distribution_data = ev_distribution_data.melt(
+    id_vars=["기준일"],
+    var_name="시도",
+    value_name="전기차 대수"
+)
+merged_data = ev_distribution_data.groupby("시도")["전기차 대수"].sum().reset_index()
+merged_data = pd.merge(merged_data, charging_counts, on="시도", how="left").fillna(0)
+```
+#### **코드 설명**
+
+충전소 데이터에서 시도별로 충전소 개수를 계산하고 데이터 프레임으로 변환합니다.
+melt를 사용하여 전기차 등록 데이터를 병합 가능한 구조로 변환합니다.
+최종 데이터는 충전소와 전기차 등록 데이터를 시도를 기준으로 병합하여 생성됩니다.
+
+#### **Code 3: 지역 이름 통합 및 충전소 부족률 계산**
+```python
+
+# 지역 이름 통합 함수
+def merge_duplicate_regions(df):
+    duplicate_mapping = {
+        "전북특별자치도": "전라북도",
+        "강원특별자치도": "강원특별자치도"
+    }
+    df["시도"] = df["시도"].replace(duplicate_mapping)
+    df = df.groupby("시도", as_index=False).sum()
+    return df
+
+# 지역 이름 통합 및 데이터 재정렬
+merged_data = merge_duplicate_regions(merged_data)
+
+# 충전소 부족률 계산
+merged_data["충전소 부족률"] = np.where(
+    merged_data["충전소 수"] == 0, np.inf, merged_data["전기차 대수"] / merged_data["충전소 수"]
+)
+```
+#### **코드 설명**
+
+지역 이름 중복 문제를 해결하고 데이터를 재정렬합니다.
+충전소 부족률은 전기차 대수 / 충전소 수로 계산하며, 충전소가 없는 경우 inf로 처리합니다.
+
+#### **Code 4: 충전소 부족률 시각화**
+```python
+
+# 시각화
+plt.figure(figsize=(12, 6))
+plt.bar(merged_data["시도"], merged_data["충전소 부족률"], color='skyblue')
+plt.xticks(rotation=45)
+plt.ylabel("충전소 부족률")
+plt.title("지역별 충전소 부족률")
+plt.tight_layout()
+plt.savefig("charging_station_deficit_updated.png")
+plt.show()
+```
+#### **코드 설명**
+
+matplotlib 라이브러리를 사용하여 충전소 부족률을 시각화합니다.
+시각화는 데이터를 해석하는 데 중요한 요소로, 분석 결과를 명확히 전달합니다.
+
 ---
 
 ## **III. Methodology**
