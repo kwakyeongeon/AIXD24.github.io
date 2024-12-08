@@ -234,7 +234,6 @@ matplotlib 라이브러리를 사용하여 충전소 부족률을 시각화합�
 
 ## **References**
 - [한국환경공단 공공데이터](https://www.data.go.kr/)  
-- [Kaggle: EV 충전소 데이터](https://www.kaggle.com/)  
 - 딥러닝 관련 논문 및 참고 자료.  
 
 
