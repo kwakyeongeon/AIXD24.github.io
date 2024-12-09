@@ -76,172 +76,206 @@
 
 ---
 
-#### **Code 1: 시도 이름 표준화**
+#### **Code 1: 데이터 로드**
 ```python
-# 데이터 전처리 함수: 시도 이름 표준화
-def standardize_region_names(df, region_col):
-    region_mapping = {
-        "강원": "강원특별자치도",
-        "경기": "경기도",
-        "경남": "경상남도",
-        "경북": "경상북도",
-        "광주": "광주광역시",
-        "대구": "대구광역시",
-        "대전": "대전광역시",
-        "부산": "부산광역시",
-        "서울": "서울특별시",
-        "세종": "세종특별자치시",
-        "울산": "울산광역시",
-        "인천": "인천광역시",
-        "전남": "전라남도",
-        "전북": "전북특별자치도",
-        "제주": "제주특별자치도",
-        "충남": "충청남도",
-        "충북": "충청북도"
-    }
-    df[region_col] = df[region_col].replace(region_mapping)
-    return df
+import pandas as pd
+
+def load_charging_station_data(data_path):
+    """
+    충전소 데이터를 로드합니다.
+    """
+    return pd.read_csv(data_path, header=None).dropna()
+
 ```
 
 #### **코드 설명**
 
-**지역 이름 일관성 맞추기: 데이터 병합의 필수 단계**
-충전소 데이터와 전기차 등록 대수 데이터를 결합하기 위해, region_mapping을 사용해 지역 이름을 표준화합니다. 이는 데이터 병합 과정에서 필수적인 단계로, 데이터 간 불일치로 인한 오류를 방지합니다.
+load_charging_station_data 함수는 충전소 데이터를 CSV 파일에서 불러옵니다.
+데이터에 결측값이 존재하면 이를 제거하여 데이터의 완전성을 유지합니다.
 
-**처리 단계**
-**1. 지역 이름 매핑 테이블 생성**
-서로 다른 데이터셋에 사용된 지역 이름의 변형(예: "서울특별시" vs "서울")을 확인하고, 이를 표준 이름으로 매핑하는 테이블을 작성합니다.
 
-**2. 매핑 적용 및 표준화**
-매핑 테이블을 각 데이터셋의 지역 이름 컬럼에 적용하여 일관성 있는 표준 이름으로 변환합니다.
-
-**3. 데이터 병합**
-표준화된 지역 이름을 기준으로 데이터를 병합하여 분석 가능한 통합 데이터셋을 생성합니다.
-
-#### **Code 2: 데이터 병합**
+#### **Code 2: 데이터 전처리 및 스케일링**
 ```python
 
-# 충전소 데이터 병합: 충전소 수 계산
-charging_counts = charging_data.groupby("시도").size().reset_index(name="충전소 수")
+from sklearn.preprocessing import MinMaxScaler
 
-# 전기차 등록 대수 데이터 변환 및 병합
-ev_distribution_data = ev_distribution_data.melt(
-    id_vars=["기준일"],
-    var_name="시도",
-    value_name="전기차 대수"
-)
-merged_data = ev_distribution_data.groupby("시도")["전기차 대수"].sum().reset_index()
-merged_data = pd.merge(merged_data, charging_counts, on="시도", how="left").fillna(0)
+def data_preprocess(data_path, train_ratio=0.8):
+    """
+    데이터 전처리 및 스케일링 수행.
+    """
+    data = pd.read_csv(data_path, header=None).dropna()
+    location = data.iloc[1:].to_numpy()
+
+    # 위도와 경도 추출
+    inputs = []
+    for record in location:
+        lat = float(record[-1].split(',')[0])
+        lon = float(record[-1].split(',')[1])
+        inputs.append([lat, lon])
+    inputs = np.array(inputs)
+
+    # 데이터 스케일링
+    scaler = MinMaxScaler()
+    inputs = scaler.fit_transform(inputs)
+
+    # 학습 및 테스트 데이터 분리
+    train_x = inputs[:int(inputs.shape[0] * train_ratio)]
+    test_x = inputs[int(inputs.shape[0] * train_ratio):]
+
+    return train_x, test_x
+
 ```
 #### **코드 설명**
 
-**데이터 처리 및 병합 과정**
-
-
-**1. 충전소 데이터에서 시도별 충전소 개수 계산**
-충전소 데이터를 시도별로 그룹화하여 충전소 개수를 집계합니다. 이렇게 생성된 데이터는 분석의 기본 단위가 되는 시도별 충전소 분포를 나타냅니다. 이후 이를 데이터 프레임으로 변환하여 병합에 사용할 준비를 합니다.
-
-**2. melt를 활용한 전기차 등록 데이터 변환**
-전기차 등록 데이터는 다양한 컬럼으로 나뉘어 있을 수 있으므로, 이를 병합 가능한 구조로 변환하기 위해 melt를 사용합니다.
-melt는 데이터를 "긴 형태"로 변환하여 시도를 기준으로 충전소 데이터와 쉽게 병합할 수 있게 합니다.
-이 과정에서 "시도"와 "전기차 등록 대수"와 같은 키 컬럼을 생성합니다.
-
-**3. 최종 데이터 병합**
-충전소 데이터와 변환된 전기차 등록 데이터를 시도를 기준으로 병합하여, 각 시도의 충전소 개수와 전기차 등록 대수를 포함한 통합 데이터 프레임을 생성합니다.
-
- -이 데이터는 시도별 전기차 보급 상황과 충전 인프라의 격차를 분석하는 데 활용됩니다.
- -병합 이후 결측값은 적절히 처리(예: fillna(0))하여 완전한 데이터셋을 확보합니다.
+data_preprocess 함수는 충전소 데이터에서 위도와 경도를 추출하여 전처리합니다.
+MinMaxScaler를 사용하여 데이터를 0과 1 사이로 스케일링하여 학습 안정성을 높입니다.
+데이터는 80%를 학습용, 20%를 테스트용으로 나누어 모델 학습과 평가를 분리합니다.
 
 #### **Code 3: 지역 이름 통합 및 충전소 부족률 계산**
 ```python
 
-# 지역 이름 통합 함수
-def merge_duplicate_regions(df):
-    duplicate_mapping = {
-        "전북특별자치도": "전라북도",
-        "강원특별자치도": "강원특별자치도"
-    }
-    df["시도"] = df["시도"].replace(duplicate_mapping)
-    df = df.groupby("시도", as_index=False).sum()
-    return df
+import matplotlib.pyplot as plt
 
-# 지역 이름 통합 및 데이터 재정렬
-merged_data = merge_duplicate_regions(merged_data)
+def visualize_data_distribution(data):
+    """
+    데이터 분포 시각화.
+    """
+    plt.figure(figsize=(10, 8))
+    plt.scatter(data[:, 1], data[:, 0], s=10, color="blue", label="Data Points")
+    plt.title("Geographic Distribution of Charging Stations")
+    plt.xlabel("Longitude")
+    plt.ylabel("Latitude")
+    plt.legend()
+    plt.grid(True)
+    plt.savefig('./results/data_distribution.png')
+    plt.show()
 
-# 충전소 부족률 계산
-merged_data["충전소 부족률"] = np.where(
-    merged_data["충전소 수"] == 0, np.inf, merged_data["전기차 대수"] / merged_data["충전소 수"]
-)
 ```
 #### **코드 설명**
 
-**데이터 정리 및 충전소 부족률 계산 과정**
+visualize_data_distribution 함수는 데이터 분포를 시각화하여 충전소의 지리적 위치를 확인합니다.
+파란색 점은 각 충전소의 위치를 나타내며, 이를 통해 충전소의 밀집 및 부족 지역을 식별할 수 있습니다.
 
-**1. 지역 이름 중복 문제 해결**
-데이터 병합 후 지역 이름이 중복으로 나타나는 경우, 동일한 지역을 그룹화하고 관련 데이터를 합산 또는 평균화하여 중복 문제를 해결합니다.
+#### **결론**
 
-예: 동일 지역이 "서울"과 "서울특별시"로 중복되는 경우, region_mapping 또는 그룹화를 사용해 일관되게 정리합니다.
+데이터셋 전처리는 본 프로젝트의 핵심 단계로, 다음과 같은 작업을 수행했습니다.
 
+충전소 데이터와 전기차 등록 데이터를 로드 및 전처리.
+위도와 경도 정보를 추출하여 스케일링 후 학습용/테스트용으로 분리.
+데이터의 지리적 분포를 시각화하여 추가 분석과 모델 학습에 필요한 인사이트를 도출.
+이를 통해 전기차 충전소 부족 문제를 해결할 기반 데이터를 성공적으로 구축했습니다.
 
-**2. 데이터 재정렬**
-데이터를 지역(시도) 기준으로 정렬하여 결과를 직관적으로 분석할 수 있도록 재구성합니다.
-
-정렬 기준: 시도명 또는 충전소 부족률, 필요에 따라 오름차순 또는 내림차순으로 정렬합니다.
-
-
-**3. 충전소 부족률 계산**
-충전소 부족률은 다음 공식으로 계산합니다:
-
-충전소 부족률 = 전기차 대수/충전소 수
-
-충전소가 없는 경우: 분모가 0이 되므로 부족률은 inf로 처리하여 별도로 표시하거나 분석에서 제외할 수 있도록 관리합니다.
-계산된 부족률을 데이터 프레임에 새로운 컬럼으로 추가합니다.
-
-**4. 결과물 구성**
-최종 데이터는 아래와 같은 컬럼으로 구성됩니다:
-
-시도: 지역 이름
-전기차 대수: 해당 시도의 등록된 전기차 수
-충전소 개수: 해당 시도의 충전소 개수
-충전소 부족률: 전기차 대수 대비 충전소 부족 비율
-
-#### **Code 4: 충전소 부족률 시각화**
-```python
-
-# 시각화
-plt.figure(figsize=(12, 6))
-plt.bar(merged_data["시도"], merged_data["충전소 부족률"], color='skyblue')
-plt.xticks(rotation=45)
-plt.ylabel("충전소 부족률")
-plt.title("지역별 충전소 부족률")
-plt.tight_layout()
-plt.savefig("charging_station_deficit_updated.png")
-plt.show()
-```
-
-![charging_station_deficit_updated](https://github.com/user-attachments/assets/db77d237-0025-4b1c-9f9f-d173668b9274)
-#### **코드 설명**
-
-Matplotlib을 사용해 시각화한 충전소 부족률 그래프는 지역별 전기차와 충전소 인프라의 불균형을 한눈에 보여줍니다. 
-그래프를 통해 부족률이 높은 지역을 쉽게 파악할 수 있어, 우선적으로 충전소가 필요한 곳을 명확히 확인할 수 있습니다. 
-또한, 충전소와 전기차의 균형이 잘 맞는 지역이나 충전소가 전혀 없는 지역도 직관적으로 비교할 수 있습니다. 
-이런 시각화는 분석 결과를 이해하기 쉽게 만들어주며, 정책 수립이나 투자 판단에 실질적인 도움을 줄 수 있습니다.
 
 ---
 
 ## **III. Methodology**
 
 ### **Algorithms and Models**
-- **지도 학습 기반 딥러닝 모델**:  
-  - **LSTM**: 시간에 따른 전기차 등록 대수의 증가 추이 예측.  
-  - **CNN**: 지리적 패턴 분석 및 충전소의 최적 위치 선정.  
-- **예측 모델 구성 및 훈련 과정**:  
-  - 기존 데이터셋에서 충전소가 부족한 지역 탐지.  
-  - 새로운 충전소 위치를 예측하기 위한 회귀 분석 모델 훈련.  
+
+본 프로젝트에서는 전기차 충전소 최적 배치를 위해 Autoencoder를 기반으로 한 딥러닝 모델을 사용하였습니다. 
+Autoencoder는 입력 데이터를 잠재 공간(latent space)으로 압축한 뒤, 
+이를 복원하는 과정을 통해 데이터의 특징을 학습하는 비지도 학습 모델입니다. 
+이 모델은 다음과 같은 두 가지 주요 컴포넌트로 구성됩니다:
+
+1.Encoder 
+Encoder는 입력 데이터를 저차원 잠재 공간(latent space)으로 압축합니다. 이 과정에서 데이터의 핵심적인 특징만 유지됩니다.
+
+2. Decoder
+Decoder는 잠재 공간의 표현(latent representation)을 기반으로 원래 입력 데이터를 복원합니다. 이를 통해 모델은 입력 데이터를 압축하고 복원하는 과정을 반복 학습하여 데이터의 구조를 학습합니다.
+
+Model Architecture
+Code Implementation
+
+```python
+import tensorflow as tf
+from tensorflow.keras import layers, models
+
+def build_model():
+    """
+    Autoencoder 모델 정의
+    """
+    # Encoder
+    latent_dim = 2
+    encoder_input = layers.Input(shape=(2,))
+    encoded = layers.Dense(64, activation='relu')(encoder_input)
+    latent = layers.Dense(latent_dim, activation='linear')(encoded)
+    encoder = models.Model(encoder_input, latent, name="encoder")
+
+    # Decoder
+    decoder_input = layers.Input(shape=(latent_dim,))
+    decoded = layers.Dense(64, activation='relu')(decoder_input)
+    output = layers.Dense(2, activation='linear')(decoded)
+    decoder = models.Model(decoder_input, output, name="decoder")
+
+    # Autoencoder
+    autoencoder_input = layers.Input(shape=(2,))
+    encoded_latent = encoder(autoencoder_input)
+    decoded_output = decoder(encoded_latent)
+    autoencoder = models.Model(autoencoder_input, decoded_output, name="autoencoder")
+
+    # 모델 컴파일
+    autoencoder.compile(optimizer='adam', loss='mse', metrics=["mae"])
+    return autoencoder
+```
+
+Why Autoencoder?
+Autoencoder는 다음과 같은 이유로 본 프로젝트에 적합합니다:
+
+공간 데이터의 학습: Autoencoder는 전기차 충전소의 위도와 경도 데이터를 학습하여 주요 패턴을 압축적으로 표현할 수 있습니다.
+결손 데이터 예측: Autoencoder는 학습된 패턴을 기반으로 부족한 충전소 위치를 복원하거나 예측하는 데 유용합니다.
+군집화와 시각화: Latent space를 기반으로 충전소 위치를 군집화하고, 이를 분석하여 최적의 위치를 제안할 수 있습니다.
+Training Process
+Data Preprocessing:
+
+데이터는 위도와 경도 값으로 구성되며, 이를 MinMaxScaler를 사용하여 스케일링.
+학습 데이터와 테스트 데이터를 80:20 비율로 분리.
+Model Training:
+
+mean squared error (MSE)와 mean absolute error (MAE)를 손실 함수로 사용하여 학습.
+100 epochs 동안 학습하며, 학습 및 검증 손실 추이를 시각화.
+Evaluation:
+
+Autoencoder의 복원 결과를 테스트 데이터에 대해 평가.
+Latent space를 기반으로 새로운 충전소 위치를 추천.
+
+
+
+ ```python
+
+def build_model():
+    latent_dim = 2
+    encoder_input = layers.Input(shape=(2,))
+    encoded = layers.Dense(64, activation='relu')(encoder_input)
+    latent = layers.Dense(latent_dim, activation='linear')(encoded)
+
+    encoder = models.Model(encoder_input, latent, name="encoder")
+    
+    decoder_input = layers.Input(shape=(latent_dim,))
+    decoded = layers.Dense(64, activation='relu')(decoder_input)
+    output = layers.Dense(2, activation='linear')(decoded)
+
+    decoder = models.Model(decoder_input, output, name="decoder")
+
+    autoencoder_input = layers.Input(shape=(2,))
+    encoded_latent = encoder(autoencoder_input)
+    decoded_output = decoder(encoded_latent)
+
+    autoencoder = models.Model(autoencoder_input, decoded_output, name="autoencoder")
+    autoencoder.compile(optimizer='adam', loss='mse', metrics=["mae"])
+    return autoencoder
+
+```
+
+설명: 이 모델은 Autoencoder를 통해 데이터를 잠재 공간으로 변환하여 최적의 충전소 위치를 예측합니다.
+
+KMeans 군집화
+
+지역 데이터를 군집화하여 고밀도 지역과 저밀도 지역을 구분합니다.
+
+
 
 ### **Features**
 - 주요 피처:  
-  - 지역별 전기차 대수.  
   - 기존 충전소와의 거리.  
   - 충전소 밀도 및 유형.  
   - 위도/경도.  
@@ -289,6 +323,7 @@ Matplotlib을 사용해 시각화한 충전소 부족률 그래프는 지역별 
 
 ## **References**
 - [한국환경공단 공공데이터](https://www.data.go.kr/)  
-- 딥러닝 관련 논문 및 참고 자료.  
-
+- [TensorFlow](https://kr.mathworks.com/discovery/autoencoder.html)
+- [MathWorks](https://www.tensorflow.org/tutorials/generative/autoencoder?hl=ko)
+- 
 
