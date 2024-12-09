@@ -14,7 +14,8 @@
     - [Features](#features)  
 5. [IV. Evaluation & Analysis](#iv-evaluation--analysis)
     - [Evaluation Metrics](#Evaluation-Metrics)
-    - [Visualization](#Visualization)  
+    - [Visualization](#Visualization)
+    - [Summary of Findings](#Summary-of-Findings)   
 7. [V. Related Work](#v-related-work)  
 8. [VI. Conclusion](#vi-conclusion)  
 
@@ -597,6 +598,8 @@ MSE 손실 그래프: 학습 데이터와 검증 데이터의 MSE 값이 Epoch�
 
 MAE 손실 그래프: Epoch에 따른 MAE 값의 변화를 시각적으로 표현하여 학습 데이터와 검증 데이터의 평균 오차 추이를 확인했습니다.
 
+
+
 ![MAE](https://github.com/user-attachments/assets/bb48b5b6-dd21-4b8f-87e4-b3dd68907202)
 
 [MAE 손실 그래프]
@@ -642,7 +645,7 @@ MAE 손실 그래프: Epoch에 따른 MAE 값의 변화를 시각적으로 표�
 
 ---
 
-**Summary of Findings**
+### **Summary of Findings**
 
 -모델은 기존 충전소 데이터의 분포를 학습하고 이를 기반으로 부족한 지역에 새로운 충전소를 추천할 수 있었습니다.
 
