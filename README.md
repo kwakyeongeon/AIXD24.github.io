@@ -13,8 +13,6 @@
     - [Algorithms and Models](#algorithms-and-models)  
     - [Features](#features)  
 5. [IV. Evaluation & Analysis](#iv-evaluation--analysis)  
-    - [Evaluation Metrics](#evaluation-metrics)  
-    - [Visualization](#visualization)  
 6. [V. Related Work](#v-related-work)  
 7. [VI. Conclusion](#vi-conclusion)  
 
@@ -88,34 +86,34 @@ def load_charging_station_data(data_path):
 load_charging_station_data 함수는 충전소 데이터를 CSV 파일에서 불러옵니다.
 데이터에 결측값이 존재하면 이를 제거하여 데이터의 완전성을 유지합니다.
 
-
+---
 #### **Code 2: 데이터 전처리 및 스케일링**
 ```python
 
 from sklearn.preprocessing import MinMaxScaler
 
-def data_preprocess(data_path, train_ratio=0.8):
-    """
-    데이터 전처리 및 스케일링 수행.
-    """
+def data_preprocess(
+        data_path:str,
+        train_ratio:float=0.8
+):
     data = pd.read_csv(data_path, header=None).dropna()
     location = data.iloc[1:].to_numpy()
 
-    # 위도와 경도 추출
+    # 좌표 추출
     inputs = []
-    for record in location:
-        lat = float(record[-1].split(',')[0])
-        lon = float(record[-1].split(',')[1])
-        inputs.append([lat, lon])
+    for data in tqdm(location):
+        x = float(data[-1].split(',')[0])
+        y = float(data[-1].split(',')[1])
+        inputs.append([x, y])
     inputs = np.array(inputs)
-
+    
     # 데이터 스케일링
     scaler = MinMaxScaler()
     inputs = scaler.fit_transform(inputs)
 
-    # 학습 및 테스트 데이터 분리
-    train_x = inputs[:int(inputs.shape[0] * train_ratio)]
-    test_x = inputs[int(inputs.shape[0] * train_ratio):]
+    # 학습 평가 분할
+    train_x = inputs[:int(inputs.shape[0]*train_ratio), :]
+    test_x = inputs[int(inputs.shape[0]*train_ratio):, :]
 
     return train_x, test_x
 
@@ -126,30 +124,7 @@ data_preprocess 함수는 충전소 데이터에서 위도와 경도를 추출�
 MinMaxScaler를 사용하여 데이터를 0과 1 사이로 스케일링하여 학습 안정성을 높입니다.
 데이터는 80%를 학습용, 20%를 테스트용으로 나누어 모델 학습과 평가를 분리합니다.
 
-#### **Code 3: 데이터 분포 시각화**
-```python
-
-import matplotlib.pyplot as plt
-
-def visualize_data_distribution(data):
-    """
-    데이터 분포 시각화.
-    """
-    plt.figure(figsize=(10, 8))
-    plt.scatter(data[:, 1], data[:, 0], s=10, color="blue", label="Data Points")
-    plt.title("Geographic Distribution of Charging Stations")
-    plt.xlabel("Longitude")
-    plt.ylabel("Latitude")
-    plt.legend()
-    plt.grid(True)
-    plt.savefig('./results/data_distribution.png')
-    plt.show()
-
-```
-#### **코드 설명**
-
-visualize_data_distribution 함수는 데이터 분포를 시각화하여 충전소의 지리적 위치를 확인합니다.
-파란색 점은 각 충전소의 위치를 나타내며, 이를 통해 충전소의 밀집 및 부족 지역을 식별할 수 있습니다.
+---
 
 #### **결론**
 
@@ -215,7 +190,7 @@ def build_model():
     return autoencoder
 ```
 
-**Autoencoder는 어떻게 작동하나요?**
+**How does an Autoencoder work?**
 
 Autoencoder는 입력값을 재구성하여 출력합니다. 
 Autoencoder는 인코더와 디코더라는 2개의 더 작은 신경망으로 구성됩니다. 
@@ -232,115 +207,357 @@ Autoencoder는 일반화가 매우 용이하며 영상, 시계열, 텍스트 등
 
 [그림1]: Autoencoder는 인코더와 디코더로 구성됩니다.
 
-**어떤 응용 사례에서 autoencoder를 사용하나요?**
+---
+
+**Applications of Autoencoders**
 
 Autoencoder는 인코더가 훈련될 때 입력값의 모든 잡음을 자연적으로 무시합니다. 
 이 기능은 입력값과 출력값이 비교될 때 잡음을 제거하거나 이상을 감지하는 데 이상적입니다. 
 (그림 2 및 3 참조)
-
 오토인코더는 영상(빨간색 r이 있는 점이 찍힌 배경)에서 잡음(빨간색 r)을 제거합니다.
 ![2](https://github.com/user-attachments/assets/b7ba0074-0559-4634-aa5f-efd92c128b77) 
 
 [그림2]: 영상에서 잡음 제거.
 
-
 오토인코더는 영상(빨간색 r이 있는 점이 찍힌 배경)에서 이상(빨간색 r)을 검출합니다.
-![3](https://github.com/user-attachments/assets/8014f4e7-23a0-4f23-b861-c6b22a724286) 
+
+![2-2](https://github.com/user-attachments/assets/d062eb09-e208-4551-984a-c9eafcccb5b5)
 
 [그림3]: 영상 기반 이상 감지.
 
+---
+
 잠재 표현은 합성 데이터 생성에 사용할 수도 있습니다. 예를 들면 실제 같아 보이는 손글씨나 텍스트 문구를 자동으로 작성할 수 있습니다. (그림 4)
-
-
 오토인코더의 입력 텍스트로 셰익스피어의 소네트를 사용했습니다. 
 출력 텍스트는 생성된 소네트입니다.
+
 ![3](https://github.com/user-attachments/assets/8014f4e7-23a0-4f23-b861-c6b22a724286) 
 
 [그림4]: 기존 텍스트로부터 새 텍스트 문구 생성하기.
 
-시계열 기반 autoencoder는 신호 데이터의 이상을 감지하는 데 사용할 수도 있습니다. 예를 들어 예측 정비에서는 산업 기계에서 수집한 정상 동작 데이터로 autoencoder를 훈련시킬 수 있습니다. (그림 5)
+---
 
+시계열 기반 autoencoder는 신호 데이터의 이상을 감지하는 데 사용할 수도 있습니다. 
+예를 들어 예측 정비에서는 산업 기계에서 수집한 정상 동작 데이터로 autoencoder를 훈련시킬 수 있습니다. (그림 5)
 
 오토인코더는 산업 기계의 정상 동작 데이터(시계열 신호)에서 오차를 검출하여 제거합니다.
-
 
 ![4](https://github.com/user-attachments/assets/1d7052a6-d820-46f6-8480-9e96af66798d) 
 
 [그림5]: 예측 정비를 위해 정상 동작 데이터로 훈련시키기.
 
+---
+
 이렇게 훈련된 autoencoder는 이후에 새로운 수신 데이터로 테스트를 거칩니다. 
 Autoencoder 출력값으로부터의 변동이 크면 이상 동작임을 가리키는 것이며, 이렇게 되면 조사가 필요할 수 있습니다. (그림 6)
 
 오토인코더는 산업 기계의 비정상 동작 데이터(시계열 신호)에서 큰 오류를 검출하여 제거합니다.
-
 ![5](https://github.com/user-attachments/assets/00b7853b-7813-4842-98fc-f57939404b33) 
+
 [그림 6]: 입력 데이터의 이상을 표시하는 커다란 오차. (정비가 필요하다는 신호일 수 있음)
 
-요점
-Autoencoder는 비지도 학습이므로 레이블 지정 입력 데이터가 훈련에 불필요합니다.
-Autoencoder에는 다음과 같이 다양한 엔지니어링 작업에 알맞은 다양한 종류가 있습니다.
-컨벌루션 Autoencoder - 디코더 출력값이 인코더 입력값 모방을 시도하며 잡음 제거에 유용함
-변분 Autoencoder - 생성적 모델을 만들며, 이상 감지에 유용함
-LSTM Autoencoder - 시계열 응용 사례를 위한 생성적 모델을 만듦
-Why Autoencoder?
-Autoencoder는 다음과 같은 이유로 본 프로젝트에 적합합니다:
+---
 
-공간 데이터의 학습: Autoencoder는 전기차 충전소의 위도와 경도 데이터를 학습하여 주요 패턴을 압축적으로 표현할 수 있습니다.
-결손 데이터 예측: Autoencoder는 학습된 패턴을 기반으로 부족한 충전소 위치를 복원하거나 예측하는 데 유용합니다.
-군집화와 시각화: Latent space를 기반으로 충전소 위치를 군집화하고, 이를 분석하여 최적의 위치를 제안할 수 있습니다.
-Training Process
-Data Preprocessing:
+**요점**
 
-데이터는 위도와 경도 값으로 구성되며, 이를 MinMaxScaler를 사용하여 스케일링.
+-Autoencoder는 비지도 학습이므로 레이블 지정 입력 데이터가 훈련에 불필요합니다.
+-Autoencoder에는 다음과 같이 다양한 엔지니어링 작업에 알맞은 다양한 종류가 있습니다.
+-컨벌루션 Autoencoder - 디코더 출력값이 인코더 입력값 모방을 시도하며 잡음 제거에 유용함
+-변분 Autoencoder - 생성적 모델을 만들며, 이상 감지에 유용함
+-LSTM Autoencoder - 시계열 응용 사례를 위한 생성적 모델을 만듦
+
+---
+
+#### **Why Autoencoder?**
+
+**Autoencoder는 다음과 같은 이유로 본 프로젝트에 적합합니다:**
+
+-공간 데이터의 학습: Autoencoder는 전기차 충전소의 위도와 경도 데이터를 학습하여 주요 패턴을 압축적으로 표현할 수 있습니다.
+-결손 데이터 예측: Autoencoder는 학습된 패턴을 기반으로 부족한 충전소 위치를 복원하거나 예측하는 데 유용합니다.
+-군집화와 시각화: Latent space를 기반으로 충전소 위치를 군집화하고, 이를 분석하여 최적의 위치를 제안할 수 있습니다.
+
+---
+
+**Training Process**
+**Data Preprocessing:**
+
+-데이터는 위도와 경도 값으로 구성되며, 이를 MinMaxScaler를 사용하여 스케일링.
 학습 데이터와 테스트 데이터를 80:20 비율로 분리.
-Model Training:
+Model Training
 
-mean squared error (MSE)와 mean absolute error (MAE)를 손실 함수로 사용하여 학습.
+-mean squared error (MSE)와 mean absolute error (MAE)를 손실 함수로 사용하여 학습.
 100 epochs 동안 학습하며, 학습 및 검증 손실 추이를 시각화.
-Evaluation:
+Evaluation
 
-Autoencoder의 복원 결과를 테스트 데이터에 대해 평가.
+-Autoencoder의 복원 결과를 테스트 데이터에 대해 평가.
 Latent space를 기반으로 새로운 충전소 위치를 추천.
 
-
-
+---
+#### **modules.py**
  ```python
 
+import tensorflow as tf
+from tensorflow.keras import layers, models
+
 def build_model():
-    latent_dim = 2
+
+    # Encoder 모델
+    latent_dim = 2  # 잠재 공간의 차원
     encoder_input = layers.Input(shape=(2,))
     encoded = layers.Dense(64, activation='relu')(encoder_input)
     latent = layers.Dense(latent_dim, activation='linear')(encoded)
 
     encoder = models.Model(encoder_input, latent, name="encoder")
-    
+
+    # Decoder 모델
     decoder_input = layers.Input(shape=(latent_dim,))
     decoded = layers.Dense(64, activation='relu')(decoder_input)
     output = layers.Dense(2, activation='linear')(decoded)
 
     decoder = models.Model(decoder_input, output, name="decoder")
 
+    # Autoencoder 모델
     autoencoder_input = layers.Input(shape=(2,))
     encoded_latent = encoder(autoencoder_input)
     decoded_output = decoder(encoded_latent)
 
     autoencoder = models.Model(autoencoder_input, decoded_output, name="autoencoder")
+
+    # 모델 컴파일
     autoencoder.compile(optimizer='adam', loss='mse', metrics=["mae"])
+
     return autoencoder
 
 ```
+**코드 설명**
 
-설명: 이 모델은 Autoencoder를 통해 데이터를 잠재 공간으로 변환하여 최적의 충전소 위치를 예측합니다.
+**Model Overview**
+**Encoder:**
+입력 데이터를 2차원 잠재 공간으로 압축.
+주요 레이어: Dense(64, ReLU), Dense(2, Linear).
 
-KMeans 군집화
+**Decoder:**
 
-지역 데이터를 군집화하여 고밀도 지역과 저밀도 지역을 구분합니다.
+잠재 공간 데이터를 원래 형태로 복원.
+주요 레이어: Dense(64, ReLU), Dense(2, Linear).
+
+**Autoencoder:**
+
+Encoder와 Decoder를 결합하여 입력 데이터의 패턴을 학습.
+Optimization
+Optimizer: Adam
+Loss Function: Mean Squared Error (MSE)
+Metrics: Mean Absolute Error (MAE)
+---
+
+#### **utils.py**
+
+ ```python
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.cluster import KMeans
+from scipy.spatial import ConvexHull
+
+from tqdm import tqdm
+
+from scipy.spatial import ConvexHull
+
+def data_preprocess(
+        data_path:str,
+        train_ratio:float=0.8
+):
+    data = pd.read_csv(data_path, header=None).dropna()
+    location = data.iloc[1:].to_numpy()
+
+    # 좌표 추출
+    inputs = []
+    for data in tqdm(location):
+        x = float(data[-1].split(',')[0])
+        y = float(data[-1].split(',')[1])
+        inputs.append([x, y])
+    inputs = np.array(inputs)
+    
+    # 데이터 스케일링
+    scaler = MinMaxScaler()
+    inputs = scaler.fit_transform(inputs)
+
+    # 학습 평가 분할
+    train_x = inputs[:int(inputs.shape[0]*train_ratio), :]
+    test_x = inputs[int(inputs.shape[0]*train_ratio):, :]
+
+    return train_x, test_x
 
 
+def plot_history(history):
+    train_loss = history.history['loss']
+    val_loss = history.history['val_loss']
+
+    # plot history
+    plt.figure(figsize=(10, 6))
+    plt.plot(train_loss, label='Training MSE')
+    plt.plot(val_loss, label='Validation MSE', linestyle='--')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.title('Training and Validation Loss Over Epochs')
+    plt.legend()
+    plt.grid()
+    plt.savefig('./results/MSE.png')
+    plt.clf()
+
+    train_loss = history.history['mae']
+    val_loss = history.history['val_mae']
+    
+    # plot history
+    plt.figure(figsize=(10, 6))
+    plt.plot(train_loss, label='Training MAE')
+    plt.plot(val_loss, label='Validation MAE', linestyle='--')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.title('Training and Validation Loss Over Epochs')
+    plt.legend()
+    plt.grid()
+    plt.savefig('./results/MAE.png')
+    plt.clf()
+
+def plot_results(train_x, test_x, model):
+
+    plt.scatter(train_x[:, 1], train_x[:, 0], color='green', s=1, label='exists')
+    
+    predictions = model.predict(test_x)
+    plt.scatter(predictions[:, 1], predictions[:, 0], color='red', s=1, label='recommemd')
+    plt.legend()
+    plt.savefig('./results/plot_res.png')
+    plt.clf()
+
+def cluster(train_x, test_x, model):
+
+    # KMeans 클러스터링
+    n_clusters = 16
+    machine = KMeans(n_clusters=n_clusters)
+    machine.fit(train_x)
+
+    labels = machine.labels_
+    centers = machine.cluster_centers_
+
+    # 시각화
+    plt.figure(figsize=(10, 8))
+    colors = plt.cm.get_cmap("tab10", n_clusters)  # 클러스터 색상
+
+    for i in range(n_clusters):
+        # 클러스터 데이터 추출
+        cluster_points = train_x[labels == i]
+        
+        # 데이터 점 시각화
+        plt.scatter(cluster_points[:, 1], cluster_points[:, 0], label=f"Cluster {i + 1}", color=colors(i))
+        
+        # 클러스터 최외곽선 (Convex Hull)
+        if len(cluster_points) >= 3:  # ConvexHull은 최소 3개의 점이 필요
+            hull = ConvexHull(cluster_points)
+            for simplex in hull.simplices:
+                plt.plot(cluster_points[simplex, 1], cluster_points[simplex, 0], color=colors(i))
+
+    # 클러스터 중심 시각화
+    plt.scatter(centers[:, 1], centers[:, 0], c='red', marker='X', s=200, label='Centroids')
+
+    # 그래프 설정
+    plt.title('KMeans Clustering with Convex Hulls')
+    plt.xlabel('Longitude')
+    plt.ylabel('Latitude')
+    plt.legend()
+    plt.grid(True)
+    plt.savefig('./results/cluster.png')
+    plt.clf()
+
+def adjust(test_x, model):
+
+    test_x = test_x[:30]
+
+    adjusted = model(test_x)
+
+    plt.scatter(test_x[:,1], test_x[:,0], s=5, color='g', label='inputs')
+    plt.scatter(adjusted[:,1], adjusted[:,0], s=5, color='r', label='adjusted')
+    plt.legend()
+    plt.savefig('./results/adjust.png')
+    plt.clf()
+
+```
+
+**코드 설명**
+
+**1. 데이터 전처리**
+데이터 로드 및 변환: CSV 파일에서 충전소 위치 데이터를 읽고, 위도와 경도를 분리하여 numpy 배열로 변환.
+스케일링: MinMaxScaler로 데이터를 정규화하여 학습 안정성과 정확도를 향상.
+데이터 분할: 학습과 테스트 데이터로 나누어 모델 훈련과 성능 평가에 활용.
+
+**2. 모델 학습**
+Autoencoder 모델 설계:
+Encoder: 데이터를 압축해 핵심 특징 학습.
+Decoder: 데이터를 복원하여 입력과 유사하게 재구성.
+학습 과정:
+손실 기준: MSE, 보조 지표: MAE.
+과적합 방지를 위해 학습 데이터와 검증 데이터 활용.
+
+**3. 평가 및 시각화**
+평가 지표:
+MSE: 평균 제곱 오차로 예측 정확성을 평가.
+MAE: 평균 절대 오차로 모델 성능 평가.
+시각화:
+학습 손실 변화 그래프.
+기존 위치(초록색)와 추천 위치(빨간색) 비교 그래프.
+
+**4. 데이터 군집화 및 위치 보정**
+KMeans 클러스터링:
+최적 충전소 위치를 클러스터링으로 식별.
+각 클러스터 중심과 외곽선을 시각화.
+위치 보정:
+모델 추천 위치를 데이터 분포에 따라 조정해 현실성을 강화.
+
+---
+
+
+#### **main.py**
+
+ ```python
+
+import numpy as np
+from modules.modules import build_model
+from modules.utils import data_preprocess, plot_history, plot_results, cluster, adjust
+
+if __name__ == '__main__':
+
+    data_path = './data/ev_charging_station_data.csv'
+
+    # 데이터 전처리    
+    train_x, test_x = data_preprocess(data_path)
+
+    # 모델 빌드 및 학습
+    model = build_model()
+    history = model.fit(train_x, train_x, epochs=100, batch_size=32, validation_data=(test_x, test_x))
+    
+    # 모델 결과 출력
+    plot_history(history)
+    plot_results(train_x, test_x, model)
+
+    # 데이터셋 군집화 
+    cluster(train_x, test_x, model)
+    adjust(test_x, model)
+
+    # 랜덤한 더미 데이터 삽입 및 위치 보정 
+
+    # 데이터의 분포를 통해 사람이 전기차 충전소의 대략적인 위치를 입력해주면 기존 데이터의 분포를 고려하여 적절한 위치로 보정해줌 
+    
+
+```
+**코드 설명**
+
+<메인 파일 참조>
 
 ### **Features**
 - 주요 피처:  
-  - 기존 충전소와의 거리.  
   - 충전소 밀도 및 유형.  
   - 위도/경도.  
 
@@ -348,15 +565,8 @@ KMeans 군집화
 
 ## **IV. Evaluation & Analysis**
 
-### **Evaluation Metrics**
-- **RMSE (Root Mean Square Error)**: 위치 예측 정확도 측정.  
-- **R² (결정계수)**: 모델의 설명력을 평가.  
+### **Evaluation Metrics and Visualization**
 
-### **Visualization**
-- **히트맵**:  
-  - 기존 충전소 밀도를 시각적으로 표현하여 충전소가 부족한 지역을 식별.  
-- **시계열 그래프**:  
-  - 전기차 대수의 시간적 증가 추이를 보여줌.  
 
 ---
 
@@ -364,9 +574,11 @@ KMeans 군집화
 
 ### **참조한 문헌 및 도구**
 - **도구**: Python (`pandas`, `numpy`, `TensorFlow`, `matplotlib`), Google Colab.  
-- **관련 연구 및 블로그**:  
-  - [Kaggle의 EV 충전소 데이터 분석 예제](https://www.kaggle.com/)  
-  - [논문: 전기차 인프라와 충전소 최적 배치](https://scholar.google.com/)  
+- **관련 연구 및 블로그**:
+  -[한국환경공단 공공데이터](https://www.data.go.kr/)  
+  -[TensorFlow](https://kr.mathworks.com/discovery/autoencoder.html)
+  -[MathWorks](https://www.tensorflow.org/tutorials/generative/autoencoder?hl=ko) 
+
 
 ---
 
@@ -384,10 +596,4 @@ KMeans 군집화
 - 사용자 이동 데이터를 추가하여 실시간 충전소 추천 시스템 구축.  
 
 ---
-
-## **References**
-- [한국환경공단 공공데이터](https://www.data.go.kr/)  
-- [TensorFlow](https://kr.mathworks.com/discovery/autoencoder.html)
-- [MathWorks](https://www.tensorflow.org/tutorials/generative/autoencoder?hl=ko)
-- 
 
