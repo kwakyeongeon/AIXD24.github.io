@@ -12,9 +12,11 @@
 4. [III. Methodology](#iii-methodology)  
     - [Algorithms and Models](#algorithms-and-models)  
     - [Features](#features)  
-5. [IV. Evaluation & Analysis](#iv-evaluation--analysis)  
-6. [V. Related Work](#v-related-work)  
-7. [VI. Conclusion](#vi-conclusion)  
+5. [IV. Evaluation & Analysis](#iv-evaluation--analysis)
+    - [Evaluation Metrics](#Evaluation-Metrics)
+    - [Visualization](#Visualization)  
+7. [V. Related Work](#v-related-work)  
+8. [VI. Conclusion](#vi-conclusion)  
 
 ---
 
@@ -566,9 +568,9 @@ if __name__ == '__main__':
 
 ## **IV. Evaluation & Analysis**
 
-### **Evaluation Metrics and Visualization**
+**Evaluation Metrics and Visualization**
 
-**Evaluation Metrics**
+### **Evaluation Metrics**
 Mean Squared Error (MSE):
 
 정의: MSE는 예측 값과 실제 값 간의 차이를 제곱한 후 평균을 계산합니다. 이는 예측이 얼마나 정확한지를 수치적으로 표현합니다.
@@ -583,7 +585,7 @@ Mean Absolute Error (MAE):
 
 ---
 
-**Visualization**
+### **Visualization**
 Training and Validation Loss Graphs:
 
 MSE 손실 그래프: 학습 데이터와 검증 데이터의 MSE 값이 Epoch에 따라 어떻게 변화하는지 나타냅니다. 
