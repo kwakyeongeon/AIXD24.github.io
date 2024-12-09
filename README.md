@@ -280,14 +280,13 @@ Autoencoder 출력값으로부터의 변동이 크면 이상 동작임을 가리
 
 -데이터는 위도와 경도 값으로 구성되며, 이를 MinMaxScaler를 사용하여 스케일링.
 학습 데이터와 테스트 데이터를 80:20 비율로 분리.
-Model Training
 
 -mean squared error (MSE)와 mean absolute error (MAE)를 손실 함수로 사용하여 학습.
 100 epochs 동안 학습하며, 학습 및 검증 손실 추이를 시각화.
-Evaluation
 
 -Autoencoder의 복원 결과를 테스트 데이터에 대해 평가.
-Latent space를 기반으로 새로운 충전소 위치를 추천.
+
+-Latent space를 기반으로 새로운 충전소 위치를 추천.
 
 ---
 #### **modules.py**
