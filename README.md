@@ -729,6 +729,7 @@ MAE 손실 그래프: Epoch에 따른 MAE 값의 변화를 시각적으로 표�
 
 ### **참조한 문헌 및 도구**
 - **도구**: Python (`pandas`, `numpy`, `TensorFlow`, `matplotlib`), Google Colab.  
+
 - **관련 연구 및 블로그**:
 
   -[한국환경공단 공공데이터](https://www.data.go.kr/)
