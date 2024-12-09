@@ -222,6 +222,8 @@ Autoencoder는 인코더가 훈련될 때 입력값의 모든 잡음을 자연�
 
 [그림2]: 영상에서 잡음 제거.
 
+---
+
 오토인코더는 영상(빨간색 r이 있는 점이 찍힌 배경)에서 이상(빨간색 r)을 검출합니다.
 
 ![2-2](https://github.com/user-attachments/assets/d062eb09-e208-4551-984a-c9eafcccb5b5)
