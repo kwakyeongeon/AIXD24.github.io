@@ -583,6 +583,7 @@ Mean Squared Error (MSE):
 Mean Absolute Error (MAE):
 
 정의: MAE는 예측 값과 실제 값 간의 절대 오차의 평균입니다. 이는 오차의 방향성을 제거하고 평균적인 차이를 수치적으로 표현합니다.
+
 활용 이유: MAE는 데이터에 대한 오차의 전반적인 경향을 파악하는 데 유용합니다. MSE보다 이상치(outlier)에 덜 민감합니다.
 실험에서의 사용: 학습 과정 중 데이터의 일반적인 오차를 평가하여 모델의 안정성을 검토했습니다.
 
@@ -607,6 +608,12 @@ MAE 손실 그래프: Epoch에 따른 MAE 값의 변화를 시각적으로 표�
 [MAE 손실 그래프]
 
 ---
+
+|Epoch|100|
+|Learning rate|0.001|
+|테스트1|테스트3|
+|Batch size|128|
+|Loss function/Metric|MSE(mean squared error)/MAE(mean average error)|
 
 **랜덤 데이터 실험 결과 플롯**
 
