@@ -607,13 +607,7 @@ MAE 손실 그래프: Epoch에 따른 MAE 값의 변화를 시각적으로 표�
 
 [MAE 손실 그래프]
 
----
 
-|Epoch|100|
-|Learning rate|0.001|
-|테스트1|테스트3|
-|Batch size|128|
-|Loss function/Metric|MSE(mean squared error)/MAE(mean average error)|
 
 **랜덤 데이터 실험 결과 플롯**
 
