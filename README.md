@@ -589,11 +589,17 @@ Training and Validation Loss Graphs:
 MSE 손실 그래프: 학습 데이터와 검증 데이터의 MSE 값이 Epoch에 따라 어떻게 변화하는지 나타냅니다. 
 학습과 검증 손실이 감소하여 모델이 데이터를 적절히 학습하고 있음을 확인했습니다.
 
+![MSE](https://github.com/user-attachments/assets/e7190e73-5628-4867-85df-918bed548566)
+
 [MSE 손실 그래프]
 
 MAE 손실 그래프: Epoch에 따른 MAE 값의 변화를 시각적으로 표현하여 학습 데이터와 검증 데이터의 평균 오차 추이를 확인했습니다.
 
+![MAE](https://github.com/user-attachments/assets/bb48b5b6-dd21-4b8f-87e4-b3dd68907202)
+
 [MAE 손실 그래프]
+
+---
 
 **랜덤 데이터 실험 결과 플롯**
 
@@ -603,7 +609,11 @@ MAE 손실 그래프: Epoch에 따른 MAE 값의 변화를 시각적으로 표�
 
 -붉은색 점: 모델이 추천한 조정된 충전소 위치.
 
+![plot_res](https://github.com/user-attachments/assets/0d4a1bb1-8a0a-4564-9549-42f718560dc9)
+
 [학습 데이터 내 충전소 위치 VS. 모델을 통해 보정된 임의의 위치 데이터]
+
+---
 
 **학습된 오토인코더의 잠재벡터 클러스터링**
 
@@ -611,7 +621,11 @@ MAE 손실 그래프: Epoch에 따른 MAE 값의 변화를 시각적으로 표�
 
 -인/부천 및 서울 서부권의 클러스터가 동일한 클러스터로 판단된 것으로 보아, 충전소의 위치가 인/부천 및 서울권에 집중되었음을 확인할 수 있음. 
 
+![cluster](https://github.com/user-attachments/assets/383183f4-4fb4-4ad6-826c-396845cb6f2d)
+
 [학습된 오토인코더의 잠재벡터 클러스터링]
+
+---
 
 **평가 데이터 및 오차 플롯**
 
@@ -619,8 +633,12 @@ MAE 손실 그래프: Epoch에 따른 MAE 값의 변화를 시각적으로 표�
 학습 모델이 얼만큼 데이터의 분포를 내포하고 있는가에 대한 간단한 비교가 가능
 
 -초록 점은 평가 데이터이며, 빨간 점은 조정된 데이터를 나타내고, 두 데이터 간의 오차가 거의 없음을 확인할 수 있음 
+
+![adjust](https://github.com/user-attachments/assets/ee0c67c0-1b72-483f-9ccd-4331db8dbd7b)
+
 [오차플롯]
 
+---
 
 **Summary of Findings**
 
