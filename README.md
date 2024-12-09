@@ -1,5 +1,9 @@
 # **Optimizing EV Charging Station Placement with Deep Learning**
 
+**유튜브영상링크**
+
+[2024_2학기_AIX딥러닝기말프로젝트][https://www.youtube.com/watch?v=qrGMGiVBvos]
+
 ---
 
 ## **Contents**
