@@ -68,7 +68,7 @@
     ev_charging_station_data.csv (82176KB)
 
    ### **Data Preprocessing**
-데이터는 다양한 전처리 과정을 거쳐 분석 가능한 형태로 가공되었습니다.
+   데이터는 다양한 전처리 과정을 거쳐 분석 가능한 형태로 가공되었습니다.
 
 ---
 
