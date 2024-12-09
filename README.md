@@ -89,7 +89,8 @@ def load_charging_station_data(data_path):
 load_charging_station_data 함수는 충전소 데이터를 CSV 파일에서 불러옵니다.
 데이터에 결측값이 존재하면 이를 제거하여 데이터의 완전성을 유지합니다.
 
----
+
+
 #### **Code 2: 데이터 전처리 및 스케일링**
 ```python
 
